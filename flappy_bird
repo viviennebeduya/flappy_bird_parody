@@ -15,7 +15,7 @@ pygame.display.set_caption('Flappy Bird')
 #game variables
 ground_scroll = 0
 scroll_speed = 4
-swim = True
+swim = False
 game_over = False
 
 #load images
