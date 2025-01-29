@@ -31,10 +31,18 @@ pass_enemy = False
 #load images
 bg_img = pygame.image.load('bg_img.png') #background
 ground_img = pygame.image.load('ground_img.png') #ground
+button_img = pygame.image.load ('restart.png')
 
 def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
+
+def reset_game():
+    enemy_group.empty()
+    nemo.rect.x = 100
+    nemo.rect.y = int(screen_height / 2)
+    score = 0
+    return score
 
 
 class Fish(pygame.sprite.Sprite):
@@ -104,6 +112,26 @@ class Enemy(pygame.sprite.Sprite):
             user.kill()
 
 
+class Button():
+    def __init__(user, x, y, image):
+        user.image = image
+        user.rect = user.image.get_rect()
+        user.rect.topleft = (x, y)
+
+    def draw (user):
+        
+        action = False
+
+        pos = pygame.mouse.get_pos()
+
+        if user.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1:
+                action = True
+
+        screen.blit (user.image, (user.rect.x, user.rect.y))
+
+        return action
+
 fish_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 
@@ -111,6 +139,7 @@ nemo = Fish (100, int(screen_height / 2))
 
 fish_group.add(nemo)
 
+button = Button(screen_width // 2 - 50 , screen_height // 2 - 100 , button_img )
 
 run = True
 while run:
@@ -165,6 +194,11 @@ while run:
                 ground_scroll = 0
         
     enemy_group.update()
+
+    if game_over == True:
+        if button.draw() == True:
+            game_over = False
+            score = reset_game()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
