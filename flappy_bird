@@ -79,23 +79,17 @@ class Fish(pygame.sprite.Sprite):
         else:
             user.image = pygame.transform.rotate(user.images[user.index], -75)
 
-
-class enemy (pygame.sprite.Sprite):
-    def __init__(user, x, y, position):
+class enemy(pygame.sprite.Sprite):
+    def __init__(user, x, y):
         pygame.sprite.Sprite.__init__(user)
         user.image = pygame.image.load('enemy_img.png')
         user.rect = user.image.get_rect()
-        #position 1 = top, -1 = bot
-        if position == 1:
-          #  user.image = pygame.transform.flip (user.image, False, True)
-            user.rect.bottomleft = [x,y - int (enemy_gap / 2)]
-        if position == -1:
-            user.rect.topleft = [x , y]
+        user.rect.topleft = [x, y]
 
     def update(user):
-        user.rect.x -= scroll_speed
-        if user.rect.right < 0:
-            user.kill ()
+        user.rect.x -= scroll_speed  # Move left
+        if user.rect.right < 0:  # Remove off-screen enemies
+            user.kill()
 
 
 fish_group = pygame.sprite.Group()
@@ -139,18 +133,16 @@ while run:
         #enemy generation
         time_now = pygame.time.get_ticks()
         if time_now - last_enemy > enemy_frequency:
-            enemy_height = random.randint (-100,100)
-            btm_enemy = enemy (screen_width, int (screen_height / 2) + enemy_height, -1)
-            top_enemy = enemy (screen_width, int (screen_height / 2) + enemy_height, 1)
-            enemy_group.add(btm_enemy)
-            enemy_group.add(top_enemy)
+            enemy_y = random.randint(100, 700)  # Random y-position
+            new_enemy = enemy(screen_width, enemy_y)
+            enemy_group.add(new_enemy)
             last_enemy = time_now
-
-        ground_scroll -= scroll_speed
-        if abs(ground_scroll) > 70:
+        
+    ground_scroll -= scroll_speed
+    if abs(ground_scroll) > 70:
             ground_scroll = 0
         
-        enemy_group.update()
+    enemy_group.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
