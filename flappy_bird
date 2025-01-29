@@ -17,6 +17,9 @@ ground_scroll = 0
 scroll_speed = 4
 swim = False
 game_over = False
+enemy_gap = 150
+enemy_frequency = 1500 #millisec
+last_enemy = pygame.time.get_ticks() - enemy_frequency
 
 #load images
 bg_img = pygame.image.load('bg_img.png') #background
@@ -46,7 +49,7 @@ class Fish(pygame.sprite.Sprite):
             if user.vel > 8:
                 user.vel = 8
             print (user.vel)
-            if user.rect.bottom < 815:
+            if user.rect.bottom < 820:
                 user.rect.y += int (user.vel)
 
         if game_over == False:
@@ -73,13 +76,32 @@ class Fish(pygame.sprite.Sprite):
             #rotate
             user.image = pygame.transform.rotate(user.images[user.index], user.vel * -2)
         else:
-            user.image = pygame.transform.rotate(user.images[user.index], -90)
+            user.image = pygame.transform.rotate(user.images[user.index], -75)
+
+
+class enemy (pygame.sprite.Sprite):
+    def __init__(user, x, y, position):
+        pygame.sprite.Sprite.__init__(user)
+        user.image = pygame.image.load('enemy_img.png')
+        user.rect = user.image.get_rect()
+        #position 1 = top, -1 = bot
+        if position == 1:
+          #  user.image = pygame.transform.flip (user.image, False, True)
+            user.rect.bottomleft = [x,y - int (enemy_gap / 2)]
+        if position == -1:
+            user.rect.topleft = [x , y]
+
+    def update(user):
+        user.rect.x -= scroll_speed
+
 
 fish_group = pygame.sprite.Group()
+enemy_group = pygame.sprite.Group()
 
 nemo = Fish (100, int(screen_height / 2))
 
 fish_group.add(nemo)
+
 
 run = True
 while run:
@@ -92,16 +114,29 @@ while run:
     fish_group.draw(screen)
     fish_group.update()
 
+    enemy_group.draw(screen)
+    enemy_group.update()
+
     #ground
     screen.blit (ground_img, (ground_scroll, 70))
 
     #game over hitting the ground
-    if nemo.rect.bottom > 815:
+    if nemo.rect.bottom > 820:
         game_over = True
         swim = False
 
     #ground scroll
-    if game_over == False:
+    if game_over == False and swim == True:
+
+        #enemy generation
+        time_now = pygame.time.get_ticks()
+        if time_now - last_enemy > enemy_frequency:
+            btm_enemy = enemy (screen_width, int (screen_height / 2), -1)
+            top_enemy = enemy (screen_width, int (screen_height / 2), 1)
+            enemy_group.add(btm_enemy)
+            enemy_group.add(top_enemy)
+            last_enemy = time_now
+
         ground_scroll -= scroll_speed
         if abs(ground_scroll) > 70:
             ground_scroll = 0
