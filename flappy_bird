@@ -15,7 +15,8 @@ pygame.display.set_caption('Flappy Bird')
 #game variables
 ground_scroll = 0
 scroll_speed = 4
-flying = False
+swim = True
+game_over = False
 
 #load images
 bg_img = pygame.image.load('bg_img.png') #background
@@ -40,7 +41,7 @@ class Fish(pygame.sprite.Sprite):
     def update(user):
         
         #gravity
-        if flying == True:
+        if swim == True:
             user.vel += 0.5
             if user.vel > 8:
                 user.vel = 8
@@ -48,28 +49,31 @@ class Fish(pygame.sprite.Sprite):
             if user.rect.bottom < 815:
                 user.rect.y += int (user.vel)
 
-        #jump
-        if pygame.mouse.get_pressed()[0] == 1 and user.clicked == False:
-            user.clicked = True
-            user.vel = -10
-        if pygame.mouse.get_pressed()[0] == 0:
-            user.clicked = False
+        if game_over == False:
+            #jump
+            if pygame.mouse.get_pressed()[0] == 1 and user.clicked == False:
+                user.clicked = True
+                user.vel = -10
+            if pygame.mouse.get_pressed()[0] == 0:
+                user.clicked = False
 
 
-        #animation
-        user.counter += 1
-        nemo_cooldown = 9
+            #animation
+            user.counter += 1
+            nemo_cooldown = 9
 
 
-        if user.counter > nemo_cooldown:
-            user.counter = 0
-            user.index += 1
-            if user.index >= len (user.images):
-                user.index = 0
-        user.image=user.images [user.index]
-        
-        #rotate
-        user.image = pygame.transform.rotate(user.images[user.index], user.vel * -2)
+            if user.counter > nemo_cooldown:
+                user.counter = 0
+                user.index += 1
+                if user.index >= len (user.images):
+                    user.index = 0
+            user.image=user.images [user.index]
+            
+            #rotate
+            user.image = pygame.transform.rotate(user.images[user.index], user.vel * -2)
+        else:
+            user.image = pygame.transform.rotate(user.images[user.index], -90)
 
 fish_group = pygame.sprite.Group()
 
@@ -88,17 +92,25 @@ while run:
     fish_group.draw(screen)
     fish_group.update()
 
-    #ground scroll
+    #ground
     screen.blit (ground_img, (ground_scroll, 70))
-    ground_scroll -= scroll_speed
-    if abs(ground_scroll) > 70:
-        ground_scroll = 0
+
+    #game over hitting the ground
+    if nemo.rect.bottom > 815:
+        game_over = True
+        swim = False
+
+    #ground scroll
+    if game_over == False:
+        ground_scroll -= scroll_speed
+        if abs(ground_scroll) > 70:
+            ground_scroll = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-        if event.type == pygame.MOUSEBUTTONDOWN and flying == False:
-            flying = True
+        if event.type == pygame.MOUSEBUTTONDOWN and swim == False and game_over == False: 
+            swim = True
 
     pygame.display.update()
 
