@@ -15,6 +15,7 @@ pygame.display.set_caption('Flappy Bird')
 #game variables
 ground_scroll = 0
 scroll_speed = 4
+flying = False
 
 #load images
 bg_img = pygame.image.load('bg_img.png') #background
@@ -39,12 +40,13 @@ class Fish(pygame.sprite.Sprite):
     def update(user):
         
         #gravity
-        user.vel += 0.5
-        if user.vel > 8:
-            user.vel = 8
-        print (user.vel)
-        if user.rect.bottom < 815:
-            user.rect.y += int (user.vel)
+        if flying == True:
+            user.vel += 0.5
+            if user.vel > 8:
+                user.vel = 8
+            print (user.vel)
+            if user.rect.bottom < 815:
+                user.rect.y += int (user.vel)
 
         #jump
         if pygame.mouse.get_pressed()[0] == 1 and user.clicked == False:
@@ -56,7 +58,7 @@ class Fish(pygame.sprite.Sprite):
 
         #animation
         user.counter += 1
-        nemo_cooldown = 10
+        nemo_cooldown = 9
 
 
         if user.counter > nemo_cooldown:
@@ -66,6 +68,8 @@ class Fish(pygame.sprite.Sprite):
                 user.index = 0
         user.image=user.images [user.index]
         
+        #rotate
+        user.image = pygame.transform.rotate(user.images[user.index], user.vel * -2)
 
 fish_group = pygame.sprite.Group()
 
@@ -93,6 +97,8 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN and flying == False:
+            flying = True
 
     pygame.display.update()
 
