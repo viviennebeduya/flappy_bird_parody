@@ -27,7 +27,7 @@ class Fish(pygame.sprite.Sprite):
         user.images = []
         user.index = 0
         user.counter = 0
-        for num in range (1,4):
+        for num in range (1,7):
             img = pygame.image.load(f'nemo_img{num}.png')
             user.images.append(img)
         user.image = user.images[user.index]
@@ -38,7 +38,7 @@ class Fish(pygame.sprite.Sprite):
 
         #animation
         user.counter += 1
-        nemo_cooldown = 10
+        nemo_cooldown = 8
 
 
         if user.counter > nemo_cooldown:
