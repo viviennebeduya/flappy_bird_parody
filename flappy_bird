@@ -33,8 +33,26 @@ class Fish(pygame.sprite.Sprite):
         user.image = user.images[user.index]
         user.rect = user.image.get_rect()
         user.rect.center = [x,y]
+        user.vel = 0
+        user.clicked = False
 
     def update(user):
+        
+        #gravity
+        user.vel += 0.5
+        if user.vel > 8:
+            user.vel = 8
+        print (user.vel)
+        if user.rect.bottom < 815:
+            user.rect.y += int (user.vel)
+
+        #jump
+        if pygame.mouse.get_pressed()[0] == 1 and user.clicked == False:
+            user.clicked = True
+            user.vel = -10
+        if pygame.mouse.get_pressed()[0] == 0:
+            user.clicked = False
+
 
         #animation
         user.counter += 1
