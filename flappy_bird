@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import random
 
 pygame.init()
 
@@ -93,6 +94,8 @@ class enemy (pygame.sprite.Sprite):
 
     def update(user):
         user.rect.x -= scroll_speed
+        if user.rect.right < 0:
+            user.kill ()
 
 
 fish_group = pygame.sprite.Group()
@@ -115,13 +118,18 @@ while run:
     fish_group.update()
 
     enemy_group.draw(screen)
-    enemy_group.update()
+
 
     #ground
     screen.blit (ground_img, (ground_scroll, 70))
 
+    #collisions
+    if pygame.sprite.groupcollide(fish_group, enemy_group, False, False) or nemo.rect.top < 0:
+        game_over = True
+
+
     #game over hitting the ground
-    if nemo.rect.bottom > 820:
+    if nemo.rect.bottom >= 820:
         game_over = True
         swim = False
 
@@ -131,8 +139,9 @@ while run:
         #enemy generation
         time_now = pygame.time.get_ticks()
         if time_now - last_enemy > enemy_frequency:
-            btm_enemy = enemy (screen_width, int (screen_height / 2), -1)
-            top_enemy = enemy (screen_width, int (screen_height / 2), 1)
+            enemy_height = random.randint (-100,100)
+            btm_enemy = enemy (screen_width, int (screen_height / 2) + enemy_height, -1)
+            top_enemy = enemy (screen_width, int (screen_height / 2) + enemy_height, 1)
             enemy_group.add(btm_enemy)
             enemy_group.add(top_enemy)
             last_enemy = time_now
@@ -140,6 +149,8 @@ while run:
         ground_scroll -= scroll_speed
         if abs(ground_scroll) > 70:
             ground_scroll = 0
+        
+        enemy_group.update()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
