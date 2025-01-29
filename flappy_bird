@@ -3,23 +3,42 @@ from pygame.locals import *
 
 pygame.init()
 
+clock = pygame.time.Clock()
+fps = 60
+
 screen_width = 864
 screen_height = 936
 
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = pygame.display.set_mode((screen_width, screen_height)) #game window
 pygame.display.set_caption('Flappy Bird')
 
+#game variables
+ground_scroll = 0
+scroll_speed = 4
+
 #load images
-bg = pygame.image.load('black bg.jpg')
+bg_img = pygame.image.load('bg_img.png') #background
+ground_img = pygame.image.load('ground_img.png') #ground
 
 run = True
 while run:
 
-    screen.blit(bg, (0,0))
+    clock.tick(fps)
+
+    #background
+    screen.blit (bg_img, (0,0))
+
+    #ground scroll
+    screen.blit (ground_img, (ground_scroll, 70))
+    ground_scroll -= scroll_speed
+    if abs(ground_scroll) > 70:
+        ground_scroll = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+    pygame.display.update()
 
 
 pygame.quit()
