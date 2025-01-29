@@ -38,7 +38,7 @@ class Fish(pygame.sprite.Sprite):
 
         #animation
         user.counter += 1
-        nemo_cooldown = 8
+        nemo_cooldown = 10
 
 
         if user.counter > nemo_cooldown:
