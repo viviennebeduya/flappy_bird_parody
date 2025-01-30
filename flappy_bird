@@ -28,6 +28,7 @@ last_enemy = pygame.time.get_ticks() - enemy_frequency
 score = 0
 pass_enemy = False
 
+
 #load images
 bg_img = pygame.image.load('bg_img.png') #background
 ground_img = pygame.image.load('ground_img.png') #ground
@@ -187,6 +188,9 @@ while run:
             enemy_group.add(new_enemy)
             last_enemy = time_now
         
+        if score % 5 == 0 and score != 0:
+            enemy_frequency = max(500, 1500 - (score // 5) * 300)  # Reduces by 100ms every 5 points
+
     if game_over == False:
         enemy_group.update()
         ground_scroll -= scroll_speed
