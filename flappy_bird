@@ -15,7 +15,7 @@ screen_height = 936
 
 
 screen = pygame.display.set_mode((screen_width, screen_height)) #game window
-pygame.display.set_caption('Flappy Bird')
+pygame.display.set_caption('Flappy Nemo?')
 
 
 #scoring texts
@@ -199,10 +199,11 @@ while run:
 
 
     #score checking
-    for enemy in enemy_group:
-        if enemy.rect.right < nemo.rect.left and not enemy.passed:
-            score += 1
-            enemy.passed = True  # Prevents re-scoring the same enemy
+    if not game_over:  # Only check for scoring when the game is not over
+        for enemy in enemy_group:
+            if enemy.rect.right < nemo.rect.left and not enemy.passed:
+                score += 1
+                enemy.passed = True  # Prevents re-scoring the same enemy
 
 
     draw_text(str(score), font, white, int(screen_width / 2), 20)
