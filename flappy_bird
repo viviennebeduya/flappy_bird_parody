@@ -2,41 +2,50 @@ import pygame
 from pygame.locals import *
 import random
 
+
 pygame.init()
+
 
 clock = pygame.time.Clock()
 fps = 60
 
+
 screen_width = 864
 screen_height = 936
 
-screen = pygame.display.set_mode((screen_width, screen_height)) #game window
-pygame.display.set_caption('Flappy Bird')
 
-#scoring texts
-font = pygame.font.SysFont ('Bauhaus 93', 60)
-white = (255,255,255)
+screen = pygame.display.set_mode((screen_width, screen_height))  # game window
+pygame.display.set_caption('Flappy Bird?')
 
-#game variables
+
+# scoring texts
+font = pygame.font.SysFont('Bauhaus 93', 60)
+white = (255, 255, 255)
+
+
+# game variables
 ground_scroll = 0
 scroll_speed = 4
 swim = False
 game_over = False
 enemy_gap = 150
-enemy_frequency = 1500 #millisec
+enemy_frequency = 1500  # millisec
 last_enemy = pygame.time.get_ticks() - enemy_frequency
 score = 0
 pass_enemy = False
 
 
-#load images
-bg_img = pygame.image.load('bg_img.png') #background
-ground_img = pygame.image.load('ground_img.png') #ground
-button_img = pygame.image.load ('restart.png')
+# load images
+bg_img = pygame.image.load('bg_img.png')  # background
+ground_img = pygame.image.load('ground_img.png')  # ground
+button_img = pygame.image.load('restart.png')
+start_button_img = pygame.image.load('start_button.png')
+
 
 def draw_text(text, font, text_col, x, y):
     img = font.render(text, True, text_col)
     screen.blit(img, (x, y))
+
 
 def reset_game():
     enemy_group.empty()
@@ -52,28 +61,29 @@ class Fish(pygame.sprite.Sprite):
         user.images = []
         user.index = 0
         user.counter = 0
-        for num in range (1,7):
+        for num in range(1, 7):
             img = pygame.image.load(f'nemo_img{num}.png')
             user.images.append(img)
         user.image = user.images[user.index]
         user.rect = user.image.get_rect()
-        user.rect.center = [x,y]
+        user.rect.center = [x, y]
         user.vel = 0
         user.clicked = False
 
+
     def update(user):
-        
-        #gravity
+        # gravity
         if swim == True:
             user.vel += 0.5
             if user.vel > 8:
                 user.vel = 8
-            print (user.vel)
+            print(user.vel)
             if user.rect.bottom < 820:
-                user.rect.y += int (user.vel)
+                user.rect.y += int(user.vel)
+
 
         if game_over == False:
-            #jump
+            # jump
             if pygame.mouse.get_pressed()[0] == 1 and user.clicked == False:
                 user.clicked = True
                 user.vel = -10
@@ -81,7 +91,7 @@ class Fish(pygame.sprite.Sprite):
                 user.clicked = False
 
 
-            #animation
+            # animation
             user.counter += 1
             nemo_cooldown = 9
 
@@ -89,15 +99,16 @@ class Fish(pygame.sprite.Sprite):
             if user.counter > nemo_cooldown:
                 user.counter = 0
                 user.index += 1
-                if user.index >= len (user.images):
+                if user.index >= len(user.images):
                     user.index = 0
-            user.image=user.images [user.index]
-            
-            #rotate
+            user.image = user.images[user.index]
+
+
+            # rotate
             user.image = pygame.transform.rotate(user.images[user.index], user.vel * -2)
         else:
             user.image = pygame.transform.rotate(user.images[user.index], -75)
-            
+
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(user, x, y):
@@ -106,6 +117,7 @@ class Enemy(pygame.sprite.Sprite):
         user.rect = user.image.get_rect()
         user.rect.topleft = [x, y]
         user.passed = False
+
 
     def update(user):
         user.rect.x -= scroll_speed  # Move left
@@ -119,98 +131,126 @@ class Button():
         user.rect = user.image.get_rect()
         user.rect.topleft = (x, y)
 
-    def draw (user):
-        
+
+    def draw(user):
         action = False
-
         pos = pygame.mouse.get_pos()
-
         if user.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1:
                 action = True
-
-        screen.blit (user.image, (user.rect.x, user.rect.y))
-
+        screen.blit(user.image, (user.rect.x, user.rect.y))
         return action
 
+
+# Initialize sprite groups
 fish_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 
-nemo = Fish (100, int(screen_height / 2))
 
+# Create fish object
+nemo = Fish(100, int(screen_height / 2))
 fish_group.add(nemo)
 
-button = Button(screen_width // 2 - 50 , screen_height // 2 - 100 , button_img )
 
+# Create button object
+button = Button(screen_width // 2 - 75, screen_height // 2 - 100, start_button_img)
+
+
+# Main game loop
 run = True
-while run:
+start_game = False  # To track if the game has started
 
+
+while run:
     clock.tick(fps)
 
-    #background
-    screen.blit (bg_img, (0,0))
 
-    fish_group.draw(screen)
-    fish_group.update()
-
-    enemy_group.draw(screen)
+    # Background
+    screen.blit(bg_img, (0, 0))
 
 
-    #ground
-    screen.blit (ground_img, (ground_scroll, 70))
-
-    #score checking
-    for enemy in enemy_group:
-        if enemy.rect.right < nemo.rect.left and not enemy.passed:
-            score += 1
-            enemy.passed = True  # Prevents re-scoring the same enemy
-
-    draw_text(str(score), font, white, int(screen_width / 2), 20)
-
-    #collisions
-    if pygame.sprite.groupcollide(fish_group, enemy_group, False, False) or nemo.rect.top < 0:
-        game_over = True
+    if not start_game:
+        # Display starting page
+        draw_text("Flappy Nemo?", font, white, int(screen_width / 2) -175, int(screen_height / 4))
+        if button.draw():  # If the start button is clicked
+            start_game = True  # Start the game
 
 
-    #game over hitting the ground
-    if nemo.rect.bottom >= 820:
-        game_over = True
-        swim = False
+    else:
+        # Main game logic
+        fish_group.draw(screen)
+        fish_group.update()
 
-    #ground scroll
-    if game_over == False and swim == True:
 
-        #enemy generation
-        time_now = pygame.time.get_ticks()
-        if time_now - last_enemy > enemy_frequency:
-            enemy_y = random.randint(100, 700)  # Random y-position
-            new_enemy = Enemy(screen_width, enemy_y)
-            enemy_group.add(new_enemy)
-            last_enemy = time_now
-        
-        if score % 5 == 0 and score != 0:
-            enemy_frequency = max(500, 1500 - (score // 5) * 300)  # Reduces by 100ms every 5 points
+        enemy_group.draw(screen)
 
-    if game_over == False:
-        enemy_group.update()
-        ground_scroll -= scroll_speed
-        if abs(ground_scroll) > 70:
+
+        # Ground
+        screen.blit(ground_img, (ground_scroll, 70))
+
+
+        # Score checking
+        for enemy in enemy_group:
+            if enemy.rect.right < nemo.rect.left and not enemy.passed:
+                score += 1
+                enemy.passed = True  # Prevents re-scoring the same enemy
+
+
+        draw_text(str(score), font, white, int(screen_width / 2), 20)
+
+
+        # Collisions
+        if pygame.sprite.groupcollide(fish_group, enemy_group, False, False) or nemo.rect.top < 0:
+            game_over = True
+
+
+        # Game over hitting the ground
+        if nemo.rect.bottom >= 820:
+            game_over = True
+            swim = False
+
+
+        # Ground scroll
+        if game_over == False and swim == True:
+            # Enemy generation
+            time_now = pygame.time.get_ticks()
+            if time_now - last_enemy > enemy_frequency:
+                enemy_y = random.randint(100, 700)  # Random y-position
+                new_enemy = Enemy(screen_width, enemy_y)
+                enemy_group.add(new_enemy)
+                last_enemy = time_now
+
+
+            # Every 5 pts enemy generation speeds up
+            if score % 5 == 0 and score != 0:
+                enemy_frequency = max(500, 1500 - (score // 5) * 250)
+
+
+        if game_over == False:
+            enemy_group.update()
+            ground_scroll -= scroll_speed
+            if abs(ground_scroll) > 70:
                 ground_scroll = 0
-        
-    enemy_group.update()
 
-    if game_over == True:
-        if button.draw() == True:
-            game_over = False
-            score = reset_game()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        if event.type == pygame.MOUSEBUTTONDOWN and swim == False and game_over == False: 
-            swim = True
+        enemy_group.update()
+
+
+        if game_over == True:
+            if button.draw() == True:
+                game_over = False
+                score = reset_game()
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN and swim == False and game_over == False:
+                swim = True
+
 
     pygame.display.update()
 
 
 pygame.quit()
+
